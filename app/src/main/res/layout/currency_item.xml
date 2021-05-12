@@ -1,49 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?><!--<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="120dp"-->
+<!--    android:layout_margin="10dp"-->
+<!--    android:background="@android:color/transparent"-->
+<!--    app:cardCornerRadius="8dp">-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="120dp"
     android:layout_margin="10dp"
-    app:cardCornerRadius="8dp">
+    android:elevation="5dp"
+    android:background="@drawable/card_bg"
+    android:padding="10dp">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp">
+    <ImageView
+        android:id="@+id/country_flag"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/noimage" />
 
-        <ImageView
-            android:id="@+id/country_flag"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/usa" />
+    <TextView
+        android:id="@+id/currency_name_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/country_flag"
+        android:layout_alignBottom="@id/country_flag"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@id/country_flag"
+        android:gravity="center"
+        android:text="USD Dollar"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/currency_name_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/country_flag"
-            android:gravity="center"
-            android:capitalize="words"
-            android:layout_alignBottom="@id/country_flag"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="20dp"
-            android:layout_toEndOf="@id/country_flag"
-            android:text="USD Dollar"
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/rate_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="10,1231"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:layout_alignParentBottom="true"/>
+    <TextView
+        android:id="@+id/rate_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="10,1231"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
 
 
-    </RelativeLayout>
+</RelativeLayout>
 
-</androidx.cardview.widget.CardView>
+    <!--</androidx.cardview.widget.CardView>-->

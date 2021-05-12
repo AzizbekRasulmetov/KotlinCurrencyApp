@@ -2,11 +2,13 @@ package com.aziz.coroutines
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.aziz.coroutines.adapters.CurrencyAdapter
 import com.aziz.coroutines.databinding.ActivityMainBinding
@@ -15,11 +17,13 @@ import com.aziz.coroutines.viewmodel.MainViewModel
 import java.util.*
 import kotlin.collections.ArrayList
 
+
 class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: CurrencyAdapter
     private lateinit var currencyList: MutableList<Currency>
+    private lateinit var searchList: MutableList<Currency>
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,29 +32,30 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
         buildRecyclerView()
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        //Fill RecyclerView with data
         getData("")
-        binding.datePickBtn.setOnClickListener {
-            showDatePickerDialog()
-        }
-
 
     }
 
     fun buildRecyclerView() {
         currencyList = ArrayList()
-        adapter = CurrencyAdapter(currencyList)
+        searchList = ArrayList()
+        val animation = AnimationUtils.loadLayoutAnimation(this, R.anim.anim_layout)
+        adapter = CurrencyAdapter(searchList)
+        binding.recyclerView.setLayoutAnimation(animation)
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
     }
 
+    //Fetch data from web service. If date is given, search with date otherwise search current date data
     fun getData(date: String) {
-        Log.i("MyTag", "main getData")
-        when(date) {
+        when (date) {
             "" -> {
                 viewModel.getData("").observe(this,
                     {
                         currencyList.clear()
                         currencyList.addAll(it)
+                        searchList.addAll(currencyList)
                         adapter.notifyDataSetChanged()
                     })
             }
@@ -58,11 +63,13 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                 viewModel.getData(date).observe(this, {
                     currencyList.clear()
                     currencyList.addAll(it)
+                    searchList.addAll(currencyList)
                     adapter.notifyDataSetChanged()
                 })
             }
         }
         adapter.notifyDataSetChanged()
+        binding.recyclerView.scheduleLayoutAnimation()
 
     }
 
@@ -83,23 +90,52 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         getData(selectedDate)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.meni_main, menu)
+        val menuItem = menu!!.findItem(R.id.search_action)
+        if (menuItem != null) {
+            search(menuItem)
+        }
+        return true
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.calendar_action -> showDatePickerDialog()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
 
+    fun search(menuItem: MenuItem) {
+        val searchView = menuItem.actionView as SearchView
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            override fun onQueryTextChange(newText: String?): Boolean {
+                searchList.clear()
+                if (newText!!.isNotEmpty()) {
+                    val searchTxt = newText.toLowerCase(Locale.getDefault())
+                    currencyList.forEach {
+                        val country: String
+                        when(Locale.getDefault().toString()){
+                            "ru_ RU" ->   country = it.CcyNm_RU
+                            else -> country = it.CcyNm_UZ
+                        }
+                        if (country.toLowerCase(Locale.getDefault()).contains(searchTxt)) {
+                            searchList.add(it)
+                        }
+                    }
+                } else {
+                    searchList.addAll(currencyList)
+                }
+                adapter.notifyDataSetChanged()
+                return true
+            }
+        })
+    }
 
 
 //        btnCount.setOnClickListener {

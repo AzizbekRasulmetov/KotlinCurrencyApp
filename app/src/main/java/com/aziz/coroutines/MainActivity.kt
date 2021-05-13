@@ -4,8 +4,10 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
+        binding.progressBar.visibility = View.VISIBLE
         buildRecyclerView()
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         //Fill RecyclerView with data
@@ -50,27 +52,17 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     //Fetch data from web service. If date is given, search with date otherwise search current date data
     fun getData(date: String) {
         when (date) {
-            "" -> {
-                viewModel.getData("").observe(this,
-                    {
-                        currencyList.clear()
-                        currencyList.addAll(it)
-                        searchList.addAll(currencyList)
-                        adapter.notifyDataSetChanged()
-                    })
-            }
-            else -> {
-                viewModel.getData(date).observe(this, {
-                    currencyList.clear()
-                    currencyList.addAll(it)
-                    searchList.addAll(currencyList)
-                    adapter.notifyDataSetChanged()
-                })
-            }
+            "" -> { viewModel.getData("") }
+            else -> { viewModel.getData(date) }
         }
-        adapter.notifyDataSetChanged()
+        viewModel.currencyList.observe(this, androidx.lifecycle.Observer {
+            currencyList.clear()
+            currencyList.addAll(it)
+            searchList.addAll(currencyList)
+            adapter.notifyDataSetChanged()
+            binding.progressBar.visibility = View.INVISIBLE
+        })
         binding.recyclerView.scheduleLayoutAnimation()
-
     }
 
     fun showDatePickerDialog() {
@@ -120,8 +112,8 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                     val searchTxt = newText.toLowerCase(Locale.getDefault())
                     currencyList.forEach {
                         val country: String
-                        when(Locale.getDefault().toString()){
-                            "ru_ RU" ->   country = it.CcyNm_RU
+                        when (Locale.getDefault().toString()) {
+                            "ru_RU" -> country = it.CcyNm_RU
                             else -> country = it.CcyNm_UZ
                         }
                         if (country.toLowerCase(Locale.getDefault()).contains(searchTxt)) {
@@ -136,49 +128,6 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             }
         })
     }
-
-
-//        btnCount.setOnClickListener {
-//            tvCount.text = count++.toString()
-//        }
-//        btnDownloadUserData.setOnClickListener {
-//
-//            CoroutineScope(IO).launch {
-//                Log.i("MyTag", "Calculation is started")
-//                val stock1 = async{ getStock1() }
-//                val stock2 = async{ getStock2() }
-//                val total = stock1.await() + stock2.await()
-//                Log.i("MyTag", "Total: $total")
-//            }
-////            CoroutineScope(Dispatchers.IO).launch {
-////                downloadUserData()
-////            }
-////            CoroutineScope(Dispatchers.Main).launch {
-////                downloadUserData()
-////            }
-//        }
-//    }
-//
-//    private suspend fun downloadUserData() {
-//        for (i in 1..200000) {
-//            //Log.i("MyTag", "Downloading user $i in ${Thread.currentThread().name}")
-//            withContext(Dispatchers.Main){
-//                tvUserMessage.text = "Downloading user $i in ${Thread.currentThread().name}"
-//            }
-//        }
-//    }
-//
-//    private suspend fun getStock1(): Int {
-//        delay(10000)
-//        Log.i("MyTag", "Stock 1 is returned")
-//        return 55000
-//    }
-//
-//    private suspend fun getStock2(): Int {
-//        delay(6000)
-//        Log.i("MyTag", "Stock 2 is returned")
-//        return 35000
-//    }
 
 
 }
